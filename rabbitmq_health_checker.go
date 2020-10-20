@@ -2,24 +2,24 @@ package rabbitmq
 
 import "context"
 
-type RabbitMQHealthService struct {
+type RabbitMQHealthChecker struct {
 	url  string
 	name string
 }
 
-func NewDefaultRabbitMQHealthService(url string) *RabbitMQHealthService {
-	return NewRabbitMQHealthService(url, "rabbitmq")
+func NewDefaultRabbitMQHealthChecker(url string) *RabbitMQHealthChecker {
+	return NewRabbitMQHealthChecker(url, "rabbitmq")
 }
 
-func NewRabbitMQHealthService(url string, name string) *RabbitMQHealthService {
-	return &RabbitMQHealthService{url, name}
+func NewRabbitMQHealthChecker(url string, name string) *RabbitMQHealthChecker {
+	return &RabbitMQHealthChecker{url, name}
 }
 
-func (s *RabbitMQHealthService) Name() string {
+func (s *RabbitMQHealthChecker) Name() string {
 	return s.name
 }
 
-func (s *RabbitMQHealthService) Check(ctx context.Context) (map[string]interface{}, error) {
+func (s *RabbitMQHealthChecker) Check(ctx context.Context) (map[string]interface{}, error) {
 	res := make(map[string]interface{})
 	channel, er1 := NewChannel(s.url)
 	if er1 != nil {
@@ -29,7 +29,7 @@ func (s *RabbitMQHealthService) Check(ctx context.Context) (map[string]interface
 	return res, er2
 }
 
-func (s *RabbitMQHealthService) Build(ctx context.Context, data map[string]interface{}, err error) map[string]interface{} {
+func (s *RabbitMQHealthChecker) Build(ctx context.Context, data map[string]interface{}, err error) map[string]interface{} {
 	if err == nil {
 		return data
 	}
