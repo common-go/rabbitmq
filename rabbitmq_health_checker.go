@@ -7,11 +7,13 @@ type RabbitMQHealthChecker struct {
 	name string
 }
 
-func NewDefaultRabbitMQHealthChecker(url string) *RabbitMQHealthChecker {
-	return NewRabbitMQHealthChecker(url, "rabbitmq")
-}
-
-func NewRabbitMQHealthChecker(url string, name string) *RabbitMQHealthChecker {
+func NewRabbitMQHealthChecker(url string, options ...string) *RabbitMQHealthChecker {
+	var name string
+	if len(options) >= 1 {
+		name = options[0]
+	} else {
+		name = "rabbitmq"
+	}
 	return &RabbitMQHealthChecker{url, name}
 }
 
