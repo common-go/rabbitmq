@@ -30,25 +30,25 @@ func NewConsumerByConfig(config ConsumerConfig, autoAck, ackOnConsume bool) (*Co
 	return NewConsumer(channel, config.ExchangeName, config.QueueName, autoAck, ackOnConsume)
 }
 
-func (c *Consumer) Consume(ctx context.Context, caller mq.ConsumerCaller) {
+func (c *Consumer) Consume(ctx context.Context, handle func(context.Context, *mq.Message, error) error) {
 	delivery, err := c.Channel.Consume(c.QueueName, "", c.AutoAck, false, false, false, nil)
 	if err != nil {
-		caller.Call(ctx, nil, err)
-	}
+		handle(ctx, nil, err)
+	} else {
+		for msg := range delivery {
+			attributes := TableToMap(msg.Headers)
 
-	for msg := range delivery {
-		attributes := TableToMap(msg.Headers)
-
-		message := mq.Message{
-			Id:         msg.MessageId,
-			Data:       msg.Body,
-			Attributes: attributes,
-			Raw:        msg,
+			message := mq.Message{
+				Id:         msg.MessageId,
+				Data:       msg.Body,
+				Attributes: attributes,
+				Raw:        msg,
+			}
+			if c.AckOnConsume && !c.AutoAck {
+				msg.Ack(false)
+			}
+			handle(ctx, &message, nil)
 		}
-		if c.AckOnConsume && !c.AutoAck {
-			msg.Ack(false)
-		}
-		caller.Call(ctx, &message, nil)
 	}
 }
 

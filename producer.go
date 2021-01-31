@@ -36,8 +36,8 @@ func NewProducerByConfig(config ProducerConfig) (*Producer, error) {
 	return NewProducer(channel, config.ExchangeName, config.Key, config.ContentType)
 }
 
-func (p *Producer) Produce(ctx context.Context, data []byte, messageAttributes *map[string]string) (string, error) {
-	opts := MapToTable(*messageAttributes)
+func (p *Producer) Produce(ctx context.Context, data []byte, messageAttributes map[string]string) (string, error) {
+	opts := MapToTable(messageAttributes)
 	msg := amqp.Publishing{
 		Headers:      opts,
 		DeliveryMode: amqp.Persistent,
@@ -51,8 +51,10 @@ func (p *Producer) Produce(ctx context.Context, data []byte, messageAttributes *
 
 func MapToTable(messageAttributes map[string]string) amqp.Table {
 	opts := amqp.Table{}
-	for k, v := range messageAttributes {
-		opts[k] = v
+	if messageAttributes != nil {
+		for k, v := range messageAttributes {
+			opts[k] = v
+		}
 	}
 	return opts
 }
