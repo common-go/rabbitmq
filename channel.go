@@ -7,7 +7,6 @@ func NewChannel(url string) (*amqp.Channel, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
 
 	return conn.Channel()
 }
