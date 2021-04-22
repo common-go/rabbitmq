@@ -27,7 +27,11 @@ func NewConsumerByConfig(config ConsumerConfig, autoAck, ackOnConsume bool) (*Co
 	if err != nil {
 		return nil, err
 	}
-	return NewConsumer(channel, config.ExchangeName, config.QueueName, autoAck, ackOnConsume)
+	queue, err := channel.QueueDeclare(config.QueueName,false,false,true,false,nil)
+	if err != nil {
+		return nil, err
+	}
+	return NewConsumer(channel, config.ExchangeName, queue.Name, autoAck, ackOnConsume)
 }
 
 func (c *Consumer) Consume(ctx context.Context, handle func(context.Context, *mq.Message, error) error) {
