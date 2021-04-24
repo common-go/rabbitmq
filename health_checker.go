@@ -9,7 +9,7 @@ type HealthChecker struct {
 
 func NewHealthChecker(url string, options ...string) *HealthChecker {
 	var name string
-	if len(options) >= 1 {
+	if len(options) > 0 && len(options[0]) > 0 {
 		name = options[0]
 	} else {
 		name = "rabbitmq"
