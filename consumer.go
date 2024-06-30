@@ -2,8 +2,6 @@ package rabbitmq
 
 import (
 	"context"
-
-	"github.com/common-go/mq"
 	"github.com/streadway/amqp"
 )
 
@@ -13,12 +11,13 @@ type Consumer struct {
 	QueueName    string
 	AutoAck      bool
 	AckOnConsume bool
+	LogError     func(ctx context.Context, msg string)
 }
 
-func NewConsumer(channel *amqp.Channel, exchangeName string, queueName string, autoAck, ackOnConsume bool) (*Consumer, error) {
-	return &Consumer{Channel: channel, ExchangeName: exchangeName, QueueName: queueName, AutoAck: autoAck, AckOnConsume: ackOnConsume}, nil
+func NewConsumer(channel *amqp.Channel, exchangeName string, queueName string, autoAck, ackOnConsume bool, logError func(ctx context.Context, msg string)) (*Consumer, error) {
+	return &Consumer{Channel: channel, ExchangeName: exchangeName, QueueName: queueName, AutoAck: autoAck, AckOnConsume: ackOnConsume, LogError: logError}, nil
 }
-func NewConsumerByConfig(config ConsumerConfig, autoAck, ackOnConsume bool) (*Consumer, error) {
+func NewConsumerByConfig(config ConsumerConfig, autoAck, ackOnConsume bool, logError func(ctx context.Context, msg string)) (*Consumer, error) {
 	channel, er1 := NewChannel(config.Url)
 	if er1 != nil {
 		return nil, er1
@@ -27,35 +26,53 @@ func NewConsumerByConfig(config ConsumerConfig, autoAck, ackOnConsume bool) (*Co
 	if err != nil {
 		return nil, err
 	}
-	queue, err := channel.QueueDeclare(config.QueueName,false,false,true,false,nil)
+	queue, err := channel.QueueDeclare(config.QueueName, false, false, true, false, nil)
 	if err != nil {
 		return nil, err
 	}
-	return NewConsumer(channel, config.ExchangeName, queue.Name, autoAck, ackOnConsume)
+	return NewConsumer(channel, config.ExchangeName, queue.Name, autoAck, ackOnConsume, logError)
 }
 
-func (c *Consumer) Consume(ctx context.Context, handle func(context.Context, *mq.Message, error) error) {
+func (c *Consumer) Consume(ctx context.Context, handle func(context.Context, []byte, map[string]string)) {
 	delivery, err := c.Channel.Consume(c.QueueName, "", c.AutoAck, false, false, false, nil)
 	if err != nil {
-		handle(ctx, nil, err)
+		c.LogError(ctx, "Error when consume: "+err.Error())
 	} else {
 		for msg := range delivery {
 			attributes := TableToMap(msg.Headers)
-
-			message := mq.Message{
-				Id:         msg.MessageId,
-				Data:       msg.Body,
-				Attributes: attributes,
-				Raw:        msg,
-			}
 			if c.AckOnConsume && !c.AutoAck {
 				msg.Ack(false)
 			}
-			handle(ctx, &message, nil)
+			handle(ctx, msg.Body, attributes)
 		}
 	}
 }
-
+func (c *Consumer) ConsumeBody(ctx context.Context, handle func(context.Context, []byte)) {
+	delivery, err := c.Channel.Consume(c.QueueName, "", c.AutoAck, false, false, false, nil)
+	if err != nil {
+		c.LogError(ctx, "Error when consume: "+err.Error())
+	} else {
+		for msg := range delivery {
+			if c.AckOnConsume && !c.AutoAck {
+				msg.Ack(false)
+			}
+			handle(ctx, msg.Body)
+		}
+	}
+}
+func (c *Consumer) ConsumeDelivery(ctx context.Context, handle func(context.Context, amqp.Delivery)) {
+	delivery, err := c.Channel.Consume(c.QueueName, "", c.AutoAck, false, false, false, nil)
+	if err != nil {
+		c.LogError(ctx, "Error when consume: "+err.Error())
+	} else {
+		for msg := range delivery {
+			if c.AckOnConsume && !c.AutoAck {
+				msg.Ack(false)
+			}
+			handle(ctx, msg)
+		}
+	}
+}
 func TableToMap(header amqp.Table) map[string]string {
 	attributes := make(map[string]string, 0)
 	for k, v := range header {

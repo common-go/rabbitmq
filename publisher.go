@@ -2,9 +2,8 @@ package rabbitmq
 
 import (
 	"context"
-	"time"
-
 	"github.com/streadway/amqp"
+	"time"
 )
 
 type Publisher struct {
@@ -35,8 +34,7 @@ func NewPublisherByConfig(config PublisherConfig) (*Publisher, error) {
 	}
 	return NewPublisher(channel, config.ExchangeName, config.Key, config.ContentType)
 }
-
-func (p *Publisher) Publish(ctx context.Context, data []byte, attributes map[string]string) (string, error) {
+func (p *Publisher) Publish(ctx context.Context, data []byte, attributes map[string]string) error {
 	opts := MapToTable(attributes)
 	msg := amqp.Publishing{
 		Headers:      opts,
@@ -45,10 +43,20 @@ func (p *Publisher) Publish(ctx context.Context, data []byte, attributes map[str
 		ContentType:  p.ContentType,
 		Body:         data,
 	}
-	err := p.Channel.Publish(p.ExchangeName, p.Key, false, false, msg)
-	return "", err
+	return p.Channel.Publish(p.ExchangeName, p.Key, false, false, msg)
 }
-
+func (p *Publisher) PublishBody(ctx context.Context, data []byte) error {
+	msg := amqp.Publishing{
+		DeliveryMode: amqp.Persistent,
+		Timestamp:    time.Now(),
+		ContentType:  p.ContentType,
+		Body:         data,
+	}
+	return p.Channel.Publish(p.ExchangeName, p.Key, false, false, msg)
+}
+func (p *Publisher) PublishMessage(msg amqp.Publishing) error {
+	return p.Channel.Publish(p.ExchangeName, p.Key, false, false, msg)
+}
 func MapToTable(attributes map[string]string) amqp.Table {
 	opts := amqp.Table{}
 	if attributes != nil {
