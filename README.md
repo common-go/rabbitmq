@@ -1,12 +1,12 @@
 # rabbitmq
 RabbitMQ is an open-source message broker software that implements the Advanced Message Queuing Protocol (AMQP). It facilitates communication between different components of a system by sending and receiving messages. RabbitMQ is known for its reliability, flexibility, and support for various messaging protocols, making it a popular choice for building robust and scalable messaging systems.
 ### Libraries for RabbitMQ
-- GO: [rabbitmq](https://github.com/core-go/rabbitmq). Example is at [go-subscription](https://github.com/project-samples/go-subscription).
+- GO: [rabbitmq](https://github.com/core-go/rabbitmq). Example is at [go-rabbit-mq-sample](https://github.com/project-samples/go-rabbit-mq-sample).
 - nodejs: [rabbitmq-ext](https://www.npmjs.com/package/rabbitmq-ext). Example is at [rabbitmq-sample](https://github.com/typescript-tutorial/rabbitmq-sample).
 #### A common flow to consume a message from a message queue
 ![A common flow to consume a message from a message queue](https://cdn-images-1.medium.com/max/800/1*Y4QUN6QnfmJgaKigcNHbQA.png)
 - The libraries to implement this flow are:
-    - [mq](https://github.com/core-go/mq) for GOLANG. Example is at [go-subscription](https://github.com/project-samples/go-subscription)
+    - [mq](https://github.com/core-go/mq) for GOLANG. Example is at [go-rabbit-mq-sample](https://github.com/project-samples/go-rabbit-mq-sample)
     - [mq-one](https://www.npmjs.com/package/mq-one) for nodejs. Example is at [rabbitmq-sample](https://github.com/typescript-tutorial/rabbitmq-sample)
 
 ### Key Features of RabbitMQ
