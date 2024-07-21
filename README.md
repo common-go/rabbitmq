@@ -1,8 +1,8 @@
 # rabbitmq
 RabbitMQ is an open-source message broker software that implements the Advanced Message Queuing Protocol (AMQP). It facilitates communication between different components of a system by sending and receiving messages. RabbitMQ is known for its reliability, flexibility, and support for various messaging protocols, making it a popular choice for building robust and scalable messaging systems.
 ### Libraries for RabbitMQ
-- GO: [rabbitmq](https://github.com/core-go/rabbitmq). Example is at [go-rabbit-mq-sample](https://github.com/project-samples/go-rabbit-mq-sample).
-- nodejs: [rabbitmq-ext](https://www.npmjs.com/package/rabbitmq-ext). Example is at [rabbitmq-sample](https://github.com/typescript-tutorial/rabbitmq-sample).
+- GO: [rabbitmq](https://github.com/core-go/rabbitmq), to wrap and simplify [rabbitmq/amqp091-go](https://github.com/rabbitmq/amqp091-go). Example is at [go-rabbit-mq-sample](https://github.com/project-samples/go-rabbit-mq-sample).
+- nodejs: [rabbitmq-ext](https://www.npmjs.com/package/rabbitmq-ext), to wrap and simplify [amqplib](https://www.npmjs.com/package/amqplib). Example is at [rabbitmq-sample](https://github.com/typescript-tutorial/rabbitmq-sample).
 #### A common flow to consume a message from a message queue
 ![A common flow to consume a message from a message queue](https://cdn-images-1.medium.com/max/800/1*Y4QUN6QnfmJgaKigcNHbQA.png)
 - The libraries to implement this flow are:
